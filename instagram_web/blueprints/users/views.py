@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
-from werkzeug.security import generate_password_hash
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session,  escape
+from flask_login import login_required
 from models import user
 
 
@@ -18,26 +18,23 @@ def create():
     username = request.form['username']
     email = request.form['email']
     password = request.form['password']
-    hashed_password = generate_password_hash(password)
 
-    # if len(password) < 8 or len(password) > 50:
-    #     flash("Password must be between 8 and 50 characters")
-    # if len(password) < 8 or len(password) > 50:
-    #     return render_template('users/new.html', errors=['Password must be between 8 and 50 characters'])
-
-    new_user = user.User(username=username, email=email, password=hashed_password)
-
+    new_user = user.User(username=username, email=email, password_nohash=password)
 
     if new_user.save():
         flash('Succesfully signed up! Please login using your account.')
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
     else:
-        return render_template('users/new.html', username=username, email=email, password=password, errors=new_user.errors)
+        return render_template('users/new.html', errors=new_user.errors)
 
 
 @users_blueprint.route('/<username>', methods=["GET"])
+@login_required
 def show(username):
-    pass
+    if session['username'] == username and 'username' in session:
+        return render_template('users/user_profile.html', username=username)
+
+    return render_template('403.html'), 403
 
 
 @users_blueprint.route('/', methods=["GET"])
