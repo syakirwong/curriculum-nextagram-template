@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+from werkzeug.security import generate_password_hash
+from models import user
 
 
 users_blueprint = Blueprint('users',
@@ -13,7 +15,24 @@ def new():
 
 @users_blueprint.route('/', methods=['POST'])
 def create():
-    pass
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    hashed_password = generate_password_hash(password)
+
+    # if len(password) < 8 or len(password) > 50:
+    #     flash("Password must be between 8 and 50 characters")
+    # if len(password) < 8 or len(password) > 50:
+    #     return render_template('users/new.html', errors=['Password must be between 8 and 50 characters'])
+
+    new_user = user.User(username=username, email=email, password=hashed_password)
+
+
+    if new_user.save():
+        flash('Succesfully signed up! Please login using your account.')
+        return redirect(url_for('home'))
+    else:
+        return render_template('users/new.html', username=username, email=email, password=password, errors=new_user.errors)
 
 
 @users_blueprint.route('/<username>', methods=["GET"])

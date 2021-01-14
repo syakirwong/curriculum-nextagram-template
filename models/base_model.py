@@ -3,7 +3,6 @@ import peewee as pw
 import datetime
 from database import db
 
-
 class BaseModel(pw.Model):
     created_at = pw.DateTimeField(default=datetime.datetime.now)
     updated_at = pw.DateTimeField(default=datetime.datetime.now)
@@ -19,6 +18,7 @@ class BaseModel(pw.Model):
             return 0
 
     def validate(self):
+
         print(
             f"Warning validation method not implemented for {str(type(self))}")
         return True
