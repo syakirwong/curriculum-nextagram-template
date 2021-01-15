@@ -14,6 +14,9 @@ login_manager.init_app(app)
 
 app.register_blueprint(users_blueprint, url_prefix="/users")
 
+login_manager.login_view = "login"
+login_manager.login_message_category = "error"
+
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'), 500

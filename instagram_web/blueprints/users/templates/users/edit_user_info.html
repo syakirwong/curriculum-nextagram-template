@@ -1,0 +1,42 @@
+{% extends "_layout.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+
+<div class='container'>
+    <h2>Edit your profile</h2>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    <p>Username: {{user.username}}</p>
+    <form action="{{url_for('users.update', id=user)}}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <div class="mb-3">
+            <label for="edit-username" class="form-label">Edit username:</label>
+            <input type="text" class="form-control" id="edit-username" name=new_username>
+        </div>
+        <div class="mb-3">
+            <label for="change-profile-picture" class="form-label">Change Profile Picture</label>
+            <input type="file" class="form-control" id="change-profile-picture" name=new_profile_picture>
+        </div>
+        <div class="mb-3">
+            <label for="enter-password" class="form-label">Enter your password:</label>
+            <input type="password" class="form-control" id="enter-password" name=password>
+        </div>
+        </br>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+{% endblock %}

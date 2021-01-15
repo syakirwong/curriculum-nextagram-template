@@ -10,6 +10,7 @@ class User(UserMixin, BaseModel):
     email = pw.CharField(index=True, unique=True)
     password= pw.CharField(null=False)
     password_nohash = None
+    profile_picture = pw.TextField(null=True)
 
     def validate(self):
         duplicate_usernames= User.get_or_none(User.username == self.username)

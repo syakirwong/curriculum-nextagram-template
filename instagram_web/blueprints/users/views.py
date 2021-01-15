@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session,  escape
-from flask_login import login_required
-from models import user
+from flask_login import login_required, current_user
+from models.user import User
 
 
 users_blueprint = Blueprint('users',
@@ -19,7 +19,7 @@ def create():
     email = request.form['email']
     password = request.form['password']
 
-    new_user = user.User(username=username, email=email, password_nohash=password)
+    new_user = User(username=username, email=email, password_nohash=password)
 
     if new_user.save():
         flash('Succesfully signed up! Please login using your account.')
@@ -32,7 +32,7 @@ def create():
 @login_required
 def show(username):
     if session['username'] == username and 'username' in session:
-        return render_template('users/user_profile.html', username=username)
+        return render_template('users/user_profile.html', username=username, user=current_user)
 
     return render_template('403.html'), 403
 
@@ -42,11 +42,27 @@ def index():
     return "USERS"
 
 
-@users_blueprint.route('/<id>/edit', methods=['GET'])
+@users_blueprint.route('/<id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit(id):
-    pass
+        return render_template('users/edit_user_info.html', user=current_user)
 
 
 @users_blueprint.route('/<id>', methods=['POST'])
+@login_required
 def update(id):
-    pass
+    new_username = User(id=id, username=request.form['new_username'], password_nohash=request.form['password'])
+    new_profile_picture = request.form['new_profile_picture']
+
+    user = User.get_by_id(id)
+
+    if current_user == user:
+        if new_username.save(only=[User.username]):
+            session['username'] = request.form['new_username']
+            flash("Your new username has been updated!")
+        else:
+            flash("Could not update new username!")
+        return redirect(url_for('users.edit', id=id))
+
+    return redirect(url_for('users.edit', id=id))
+
