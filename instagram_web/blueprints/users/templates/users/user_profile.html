@@ -16,8 +16,7 @@
 </ul>
 {% endif %}
 {% endwith %}
-<p>{{username}}</p>
-<p>{{currentuser}}</p>
+<h1>@{{username}}</h1>
 <img src="{{domain}}{{user.profile_picture}}" />
 
 <form action="{{ url_for('logout')}}" method='POST'>
@@ -25,8 +24,18 @@
     <button type="submit" class="btn btn-primary">Logout</button>
 </form>
 
+<form action="{{ url_for('users.upload',id= user.id)}}" method='POST'>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <button type="submit" class="btn btn-primary">Upload Image</button>
+</form>
+
 <form action="{{ url_for('users.edit', id=user.id) }}" method='POST'>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <button type="submit" class="btn btn-primary">Edit Profile</button>
 </form>
+<h2>My Images</h2>
+{% for image in images %}
+<img src="{{domain}}{{image.photo_url}}" />
+{% endfor %}
+
 {% endblock %}

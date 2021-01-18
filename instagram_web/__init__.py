@@ -33,7 +33,7 @@ def internal_server_error(e):
 def load_user(user_id):
     return User.get_by_id(user_id)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
     return render_template('home.html')
 
@@ -51,6 +51,7 @@ def login():
 
         if result:
             session['username'] = request.form['username']
+            session['password'] = request.form['password']
             login_user(user)
             return redirect(url_for('users.show', username=username))
         else:
@@ -63,5 +64,6 @@ def login():
 def logout():
     logout_user()
     session.pop('username', None)
+    session.pop('password', None)
 
     return redirect(url_for('login'))
