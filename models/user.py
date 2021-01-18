@@ -1,6 +1,6 @@
 from models.base_model import BaseModel
 from werkzeug.security import generate_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 import peewee as pw
 import re
 
@@ -10,7 +10,7 @@ class User(UserMixin, BaseModel):
     email = pw.CharField(index=True, unique=True)
     password= pw.CharField(null=False)
     password_nohash = None
-    profile_picture = pw.TextField(null=True)
+    profile_picture = pw.CharField()
 
     def validate(self):
         duplicate_usernames= User.get_or_none(User.username == self.username)
@@ -25,7 +25,7 @@ class User(UserMixin, BaseModel):
         if self.password == "":
             self.errors.append('Password not provided')
 
-        if duplicate_usernames:
+        if duplicate_usernames and self.username != current_user.username:
             self.errors.append('Username already exist. Pick another username.')
 
         if existing_email:

@@ -20,7 +20,7 @@
     {% endif %}
     {% endwith %}
     <p>Username: {{user.username}}</p>
-    <form action="{{url_for('users.update', id=user)}}" method="POST">
+    <form action="{{url_for('users.update', id=user)}}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         <div class="mb-3">
             <label for="edit-username" class="form-label">Edit username:</label>
