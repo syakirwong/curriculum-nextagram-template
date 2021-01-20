@@ -6,6 +6,7 @@ from models.user import User
 from models.image import Image
 import peewee as pw
 
+
 AWS_DOMAIN = 'http://{}.s3-ap-southeast-1.amazonaws.com/'.format(os.getenv('AWS_BUCKET'))
 
 s3 = boto3.client(
@@ -31,7 +32,7 @@ def create():
     email = request.form['email']
     password = request.form['password']
 
-    new_user = User(username=username, email=email, password_nohash=password)
+    new_user = User(username=username, email=email, password_nohash=password, profile_picture='null')
 
     if new_user.save():
         flash('Succesfully signed up! Please login using your account.')
@@ -68,7 +69,7 @@ def update(id):
         s3.upload_fileobj(
             file,
             os.environ["AWS_BUCKET"],
-            "user/" + str(user.id) + file.filename,
+            "user/" + str(user.id)+ "/profile_picture/" + file.filename,
             ExtraArgs = {
                 "ACL": "public-read",
                 "ContentType": file.content_type

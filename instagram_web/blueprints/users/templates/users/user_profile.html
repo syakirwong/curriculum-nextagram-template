@@ -35,7 +35,8 @@
 </form>
 <h2>My Images</h2>
 {% for image in images %}
-<img src="{{domain}}{{image.photo_url}}" />
+<a href="{{ url_for('images.show', id=image.id )}}"><img src="{{domain}}{{image.photo_url}}"
+        style="height:200px; width:200px" /></a>
 {% endfor %}
 
 {% endblock %}

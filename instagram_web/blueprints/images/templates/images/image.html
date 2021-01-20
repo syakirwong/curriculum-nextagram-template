@@ -1,0 +1,34 @@
+{% extends "_layout.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<h2>IMAGE PAGE</h2>
+<p>{{id}}</p>
+<img src="{{domain}}{{image.photo_url}}" style="height:500px; width:500px" />
+<button id='donate'>Donate</button>
+<div id="my-container"></div>
+<script type="text/javascript">
+    braintree.dropin.create({
+        container: "#my-container",
+        authorization: "{{ token }}"
+    }, (error, dropinInstance) => {
+        document.querySelector("#donate").onclick = () => {
+            dropinInstance.requestPaymentMethod((error, payload) => {
+                document.querySelector("#nonce").value = payload.nonce
+                document.querySelector("#nonce-form").submit()
+            })
+        }
+    })
+</script>
+
+<form id="nonce-form" action="{{ url_for('images.pay') }}" method="POST">
+    <input id="nonce" type="hidden" name="nonce">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+</form>
+
+{% endblock %}
