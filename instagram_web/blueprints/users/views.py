@@ -4,10 +4,9 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from flask_login import login_required, current_user
 from models.user import User
 from models.image import Image
+from app import app
 import peewee as pw
 
-
-AWS_DOMAIN = 'http://{}.s3-ap-southeast-1.amazonaws.com/'.format(os.getenv('AWS_BUCKET'))
 
 s3 = boto3.client(
         "s3",
@@ -45,7 +44,7 @@ def create():
 @login_required
 def show(username):
     if session['username'] == username and 'username' in session:
-        return render_template('users/user_profile.html', username=username, user=current_user, domain=AWS_DOMAIN, images = pw.prefetch(Image.select().where(Image.user_id == current_user.id), User))
+        return render_template('users/user_profile.html', username=username, user=current_user, domain=app.config.get('AWS_DOMAIN'), images = pw.prefetch(Image.select().where(Image.user_id == current_user.id), User))
 
 @users_blueprint.route('/', methods=["GET"])
 def index():

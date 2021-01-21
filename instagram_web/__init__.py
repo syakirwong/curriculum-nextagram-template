@@ -4,6 +4,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required
 from .util.assets import bundles
 from instagram_web.blueprints.users.views import users_blueprint
 from instagram_web.blueprints.images.views import images_blueprint
+from instagram_web.util.google_oauth import oauth
 from flask_assets import Environment, Bundle
 from models.user import User
 from werkzeug.security import check_password_hash
@@ -12,6 +13,8 @@ assets = Environment(app)
 assets.register(bundles)
 login_manager = LoginManager()
 login_manager.init_app(app)
+oauth.init_app(app)
+
 
 app.register_blueprint(users_blueprint, url_prefix="/users")
 app.register_blueprint(images_blueprint, url_prefix="/images")
@@ -69,3 +72,24 @@ def logout():
     session.pop('password', None)
 
     return redirect(url_for('login'))
+
+@app.route("/google_login")
+def google_login():
+    redirect_uri = url_for('authorize', _external = True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@app.route("/authorize/google")
+def authorize():
+    oauth.google.authorize_access_token()
+    email = oauth.google.get('https://www.googleapis.com/oauth2/v2/userinfo').json()['email']
+    # hello = oauth.google.get('https://www.googleapis.com/oauth2/v2/userinfo').json()
+    # print(hello)
+    user = User.get_or_none(User.email == email)
+    print(user.username)
+    if user:
+        login_user(user)
+        session['username'] = user.username
+        return redirect(url_for('users.show', username=user.username))
+    else:
+        flash("Login failed. Please try again!", "error")
+        return redirect('/login')

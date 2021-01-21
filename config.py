@@ -8,6 +8,8 @@ class Config(object):
     SECRET_KEY = os.environ.get(
         'SECRET_KEY') or os.urandom(32)
     AWS_DOMAIN = 'http://{}.s3-ap-southeast-1.amazonaws.com/'.format(os.getenv('AWS_BUCKET'))
+    G_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+    G_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
 
 class ProductionConfig(Config):

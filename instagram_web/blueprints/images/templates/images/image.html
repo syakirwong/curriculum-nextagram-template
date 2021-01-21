@@ -8,7 +8,13 @@
 
 {% block content %}
 <h2>IMAGE PAGE</h2>
-<p>{{id}}</p>
+<p>{{image.id}}</p>
+
+<form id="nonce-form" action="{{ url_for('images.pay', id=image.id) }}" method="POST">
+    <input id="nonce" type="hidden" name="nonce">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+</form>
+
 <img src="{{domain}}{{image.photo_url}}" style="height:500px; width:500px" />
 <button id='donate'>Donate</button>
 <div id="my-container"></div>
@@ -25,10 +31,5 @@
         }
     })
 </script>
-
-<form id="nonce-form" action="{{ url_for('images.pay') }}" method="POST">
-    <input id="nonce" type="hidden" name="nonce">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-</form>
 
 {% endblock %}
