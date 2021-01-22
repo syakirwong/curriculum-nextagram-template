@@ -16,5 +16,64 @@
 </ul>
 {% endif %}
 {% endwith %}
-<h1>TEST</h1>
+<div class='container'>
+    <h1>Home</h1>
+</div>
+
+
+<div class="container d-flex flex-wrap">
+
+    <div class="d-flex flex-wrap col-8">
+        <h5 class="w-100">All users:</h5>
+        {% for user in users%}
+        <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="{{user.full_image_path}}" alt="profile-image">
+            <div class="card-body">
+                <h5 class="card-title"><a href="{{url_for('users.show', username=user.username)}}">{{user.username}}</a>
+                </h5>
+                <form action="{{url_for('users.follow',following_id=user.id)}}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input class="btn btn-primary" type="submit" value="Follow">
+                </form>
+            </div>
+        </div>
+
+        {% endfor %}
+    </div>
+
+    <div class="col-4">
+        {% if current_user.is_authenticated %}
+        <h4>Welcome {{current_user.username}}!</h4>
+
+        <div class="card" style="width: 18rem;">
+            <div class="card-header">
+                Followings:
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for following in current_user.followings %}
+                <li class="list-group-item">{{following.following.username}}
+                    <form action="{{url_for('users.unfollow',following_id=following.following.id)}}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input class="btn btn-primary" type="submit" value="Unfollow">
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card" style="width: 18rem;">
+            <div class="card-header">
+                Followers:
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for follower in current_user.followers %}
+                <li class="list-group-item">{{follower.follower.username}}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+
+</div>
 {% endblock %}

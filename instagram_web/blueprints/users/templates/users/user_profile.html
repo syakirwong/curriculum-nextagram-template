@@ -33,6 +33,23 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <button type="submit" class="btn btn-primary">Edit Profile</button>
 </form>
+<div>
+    <ul>
+        <h6>{{user.username}}'s Following</h6>
+        {% for following in user.followings %}
+        <li>{{following.following.username}}</li>
+        {% endfor %}
+    </ul>
+</div>
+<div>
+    <ul>
+        <h6>{{user.username}}'s Followers</h6>
+        {% for follower in user.followers %}
+        <li>{{follower.follower.username}}</li>
+        {% endfor %}
+    </ul>
+</div>
+
 <h2>My Images</h2>
 {% for image in images %}
 <a href="{{ url_for('images.show', id=image.id )}}"><img src="{{domain}}{{image.photo_url}}"

@@ -7,13 +7,11 @@ from models.image import Image
 from app import app
 import peewee as pw
 
-
 s3 = boto3.client(
         "s3",
         aws_access_key_id=os.getenv('AWS_KEY'),
         aws_secret_access_key=os.getenv('AWS_SECRET')
     )
-
 
 users_blueprint = Blueprint('users',
                             __name__,
@@ -43,13 +41,16 @@ def create():
 @users_blueprint.route('/<username>', methods=["GET"])
 @login_required
 def show(username):
+    user = User.get_or_none(User.username == username)
     if session['username'] == username and 'username' in session:
         return render_template('users/user_profile.html', username=username, user=current_user, domain=app.config.get('AWS_DOMAIN'), images = pw.prefetch(Image.select().where(Image.user_id == current_user.id), User))
 
+    return render_template("users/user_profile.html",user=user, username=user.username, domain=app.config.get('AWS_DOMAIN'), images = pw.prefetch(Image.select().where(Image.user_id == user.id), User))
+
 @users_blueprint.route('/', methods=["GET"])
 def index():
-    return "USERS"
-
+    users = User.select()
+    return render_template('home.html', users=users)
 
 @users_blueprint.route('/<id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -116,3 +117,30 @@ def upload_request(id):
 def upload(id):
     user = User.get_by_id(id)
     return render_template('users/upload_image.html', user=user)
+
+@users_blueprint.route('/<following_id>/follow', methods=['POST'])
+@login_required
+def follow(following_id):
+    following = User.get_by_id(following_id)
+
+    if current_user.follow(following):
+        if current_user.follow_status(following).is_approved:
+            flash(f"You follow {following.username}", "primary")
+        else:
+            flash(f"You send request to follow {following.username}", "primary")
+        return redirect(url_for('users.show', username=following.username))
+    else:
+        flash(f"Unable to follow this user, try again", "danger")
+        return redirect(url_for('users.show', username=following.username))
+
+@users_blueprint.route('/<following_id>/unfollow', methods=['POST'])
+@login_required
+def unfollow(following_id):
+    following = User.get_by_id(following_id)
+
+    if current_user.unfollow(following):
+        flash(f"You no longer follow {following.username}", "primary")
+        return redirect(url_for('users.show', username=following.username))
+    else:
+        flash(f"Unable to unfollow this user, try again", "danger")
+        return redirect(url_for('users.show', username=following.username))
