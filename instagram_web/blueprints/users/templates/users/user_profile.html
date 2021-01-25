@@ -18,6 +18,19 @@
 {% endwith %}
 <h1>@{{username}}</h1>
 <img src="{{domain}}{{user.profile_picture}}" />
+{% if user.is_private %}
+<form action="{{url_for('users.change_privacy',id=current_user.id)}}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input class="nav-link btn btn-primary" style="margin: 10px;" class="btn btn-primary" type="submit"
+        value="Make Profile Public">
+</form>
+{% else %}
+<form action="{{url_for('users.change_privacy',id=current_user.id)}}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input class="nav-link btn btn-primary" style="margin: 10px;" class="btn btn-primary" type="submit"
+        value="Make Profile Private">
+</form>
+{% endif %}
 
 <form action="{{ url_for('logout')}}" method='POST'>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -49,11 +62,14 @@
         {% endfor %}
     </ul>
 </div>
-
+{% if current_user.id == user.id or not user.is_private %}
 <h2>My Images</h2>
 {% for image in images %}
 <a href="{{ url_for('images.show', id=image.id )}}"><img src="{{domain}}{{image.photo_url}}"
         style="height:200px; width:200px" /></a>
 {% endfor %}
+{% else %}
+<span class="mx-auto">This profile is private. Follow @{{user.username}} to continue.</span>
+{% endif %}
 
 {% endblock %}

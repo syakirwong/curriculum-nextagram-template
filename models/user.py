@@ -8,7 +8,7 @@ import re
 
 class User(UserMixin, BaseModel):
     username = pw.CharField(unique=True)
-    email = pw.CharField(index=True, unique=True)
+    email = pw.CharField(unique=True)
     password= pw.CharField(null=False)
     password_nohash = None
     profile_picture = pw.CharField(default='null')
@@ -78,6 +78,25 @@ class User(UserMixin, BaseModel):
         for following in followings:
             followings_list.append(following)
         return followings_list
+
+    @hybrid_property
+    def following_requests(self):
+        from models.follow import Follow
+        followings = Follow.select(Follow.following).where(Follow.follower==self.id, Follow.is_approved==False)
+        return User.select().where( User.id.in_(followings) )
+
+    @hybrid_property
+    def follower_requests(self):
+        from models.follow import Follow
+        followers = Follow.select(Follow.follower).where(Follow.following==self.id, Follow.is_approved==False)
+        return User.select().where( User.id.in_(followers) )
+
+    @hybrid_property
+    def approve_request(self,follower):
+        from models.follow import Follow
+        relationship = follower.follow_status(self)
+        relationship.is_approved = True
+        return relationship.save()
 
     def validate(self):
         duplicate_usernames= User.get_or_none(User.username == self.username)

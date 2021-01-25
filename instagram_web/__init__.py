@@ -40,7 +40,8 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template('home.html')
+    users = User.select()
+    return render_template('home.html', users=users)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

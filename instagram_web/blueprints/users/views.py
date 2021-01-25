@@ -144,3 +144,22 @@ def unfollow(following_id):
     else:
         flash(f"Unable to unfollow this user, try again", "danger")
         return redirect(url_for('users.show', username=following.username))
+
+
+@users_blueprint.route('/<id>/private', methods=['POST'] )
+@login_required
+def change_privacy(id):
+    user = User.get_or_none(User.id == id)
+    if user:
+        if current_user.id == int(id):
+            privacy = User(id=user.id, username=user.username, password_nohash='Password1111!', is_private=not user.is_private)
+            # user.is_private = not user.is_private
+            if privacy.save(only=[User.is_private]):
+                flash("Successfully updated privacy setting", "success")
+                return redirect(url_for("users.show", username = user.username))
+            else:
+                flash("Failed to update privacy setting", "success")
+                return redirect(url_for("users.show", username = user.username))
+    else:
+        flash("Cannot change setting for another user", "danger")
+        return redirect(url_for("users.show", username = user.username))
